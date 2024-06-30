@@ -1,0 +1,11 @@
+# Python/Django
+*.pyc
+__pycache__/
+venv/
+*.sqlite3
+
+# Node.js/npm
+node_modules/
+
+# React
+build/
