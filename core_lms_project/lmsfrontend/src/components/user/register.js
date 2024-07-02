@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { register } from '../../services/authService'; // Import named export
+import { registerStudent } from '../../services/authService'; // Import named export
 
 const Register = () => {
   const [user, setUser] = useState({
@@ -17,7 +17,7 @@ const Register = () => {
 
   const handleRegister = (e) => {
     e.preventDefault();
-    register(user)
+    Register(user)
       .then((response) => {
         console.log('Registration successful:', response.data);
         setUser({

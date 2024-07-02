@@ -1,24 +1,31 @@
 # serializers.py
 from rest_framework import serializers
-from .models import Teacher, Student
+from .models import Teacher,Course,  Student,CourseCategory
 
 class TeacherSerializer(serializers.ModelSerializer):
     class Meta:
         model = Teacher
-        fields = ['id', 'full_name', 'email', 'password', 'qualification', 'mobile_no', 'skills']
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ['full_name', 'email', 'qualification', 'mobile_no', 'skills', 'password']  # Include password field
 
     def create(self, validated_data):
-        teacher = Teacher.objects.create(
+        teacher = Teacher(
             full_name=validated_data['full_name'],
             email=validated_data['email'],
             qualification=validated_data['qualification'],
             mobile_no=validated_data['mobile_no'],
-            skills=validated_data['skills']
+            skills=validated_data.get('skills', '')  # Provide a default value for optional field
         )
         teacher.set_password(validated_data['password'])
         teacher.save()
         return teacher
+    
+
+
+class CourseCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseCategory
+        fields = ['id', 'title', 'description']
+
 
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -36,3 +43,10 @@ class StudentSerializer(serializers.ModelSerializer):
         student.set_password(validated_data['password'])
         student.save()
         return student
+
+
+
+class CourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = '__all__'

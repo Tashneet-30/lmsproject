@@ -47,15 +47,15 @@ function Main() {
         <Route path="/recommended-courses" element={<RecommendedCourses />} />
         <Route path="/profile-settings" element={<ProfileSetting />} />
         <Route path="/change-password" element={<ChangePassword/>} />
-        <Route path="/teacher-login" element={<TeacherLogin />} />
-        <Route path="/teacher-register" element={<TeacherRegister/>} />
+        <Route path="/login-teacher" element={<TeacherLogin />} />
+        <Route path="/register-teacher" element={<TeacherRegister/>} />
         <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
         <Route path="/teacher-detail/:teacher_id" element={<TeacherDetail />} />
         <Route path="/all-courses" element={<AllCourses />} />
         <Route path="/popular-courses" element={<PopularCourses />} />
         <Route path="/popular-teachers" element={<PopularTeachers/>} />
         {/* Add other routes as necessary */}
-        <Route path="/teacher-logout" element={<TeacherLogout />} />
+        <Route path="/logout-teacher" element={<TeacherLogout />} />
         <Route path="/add-chapters/:id" element={<AddChapters />} />
         <Route path="/teachermy-courses" element={<TeacherMycourses />} />
         <Route path="/add-courses" element={<AddCourse />} />

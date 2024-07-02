@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 function Header() {
-  const teacherLoginStatus = localStorage.getItem('teacherLoginStatus');
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -20,17 +19,12 @@ function Header() {
                 Teacher
               </a>
               <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                {teacherLoginStatus !== 'true' ? (
-                  <>
-                    <li><Link className="dropdown-item" to="/teacher-login">Login</Link></li>
-                    <li><Link className="dropdown-item" to="/teacher-register">Register</Link></li>
-                  </>
-                ) : (
-                  <>
+                    <li><Link className="dropdown-item" to="/register-teacher">Register</Link></li>
+                    <li><Link className="dropdown-item" to="/login-teacher">Login</Link></li>
                     <li><Link className="dropdown-item" to="/teacher-dashboard">Dashboard</Link></li>
                     <li><Link className="dropdown-item" to="/teacher-logout">Logout</Link></li>
-                  </>
-                )}
+                  
+                
               </ul>
             </div>
             <div className="nav-item dropdown">

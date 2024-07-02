@@ -45,11 +45,11 @@ class CourseCategory(models.Model):
 
 class Course(models.Model):
     category = models.ForeignKey(CourseCategory, on_delete=models.CASCADE)
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     title = models.CharField(max_length=150)
     description = models.TextField()
     featured_img = models.ImageField(upload_to='course_imgs/', null=True)
     techs = models.TextField()
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, default='1')  # Assuming using Django User model for teachers
 
     class Meta:
         verbose_name_plural = "Courses"

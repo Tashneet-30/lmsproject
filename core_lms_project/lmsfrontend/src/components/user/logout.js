@@ -1,9 +1,9 @@
 import React from 'react';
-import { logout } from '../../services/authService'; // Import named export
+import { logoutStudent } from '../../services/authService'; // Import named export
 
 const Logout = () => {
   const handleLogout = () => {
-    logout();
+    Logout();
     // Perform any additional cleanup or redirect logic
   };
 
