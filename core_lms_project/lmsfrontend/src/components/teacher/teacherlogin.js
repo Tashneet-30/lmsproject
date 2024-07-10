@@ -1,61 +1,78 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const TeacherLogin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+    const [teacherLoginData, setTeacherLoginData] = useState({
+        email: '',
+        password: ''
+    });
+    const [loading, setLoading] = useState(false);  // New state to manage loading
 
-  const handleLogin = (e) => {
-    e.preventDefault();  // Prevent the default form submission behavior
-    axios.post('http://localhost:8000/api/login-teacher/', { email, password })
-      .then(response => {
-        console.log('Login successful:', response.data);
-        localStorage.setItem('access_token', response.data.access_token);
-        localStorage.setItem('refresh_token', response.data.refresh_token);
-        // Redirect to the teacher's dashboard
-        window.location.href = '/teacher-dashboard';
-      })
-      .catch(error => {
-        console.error('Login error:', error);
-        setError('Invalid email or password');
-      });
-  };
+    const handleChange = (e) => {
+        setTeacherLoginData({
+            ...teacherLoginData,
+            [e.target.name]: e.target.value
+        });
+    };
 
-  return (
-    <div className="container mt-4">
-      <h2 className="mb-4">Teacher Login</h2>
-      <form onSubmit={handleLogin}>
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">Email</label>
-          <input
-            type="email"
-            className="form-control"
-            id="email"
-            name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+    const submitForm = (e) => {
+        e.preventDefault();
+        setLoading(true);  // Set loading to true when form is submitted
+
+        const teacherFormData = new FormData();
+        teacherFormData.append('email', teacherLoginData.email);
+        teacherFormData.append('password', teacherLoginData.password);
+
+        axios.post('http://127.0.0.1:8000/api/teacher-login/', teacherFormData)
+            .then((res) => {
+                setLoading(false);  // Set loading to false after receiving the response
+                if (res.data.bool === true) {
+                    localStorage.setItem('teacherLoginStatus', 'true');
+                    localStorage.setItem('teacherId', res.data.teacher_id);
+                    window.location.href = '/teacher-dashboard';
+                } else {
+                    alert('Invalid login credentials');
+                }
+            })
+            .catch((error) => {
+                setLoading(false);  // Set loading to false in case of an error
+                console.error('Error during form submission:', error);
+            });
+    };
+
+    useEffect(() => {
+        const teacherLoginStatus = localStorage.getItem('teacherLoginStatus');
+        if (teacherLoginStatus === 'true') {
+            // window.location.href = '/teacher-dashboard';
+        }
+    }, []);
+
+    return (
+        <div>
+            <h2>Teacher Login</h2>
+            <form onSubmit={submitForm}>
+                <input
+                    type="email"
+                    name="email"
+                    value={teacherLoginData.email}
+                    onChange={handleChange}
+                    placeholder="Email"
+                    required
+                />
+                <input
+                    type="password"
+                    name="password"
+                    value={teacherLoginData.password}
+                    onChange={handleChange}
+                    placeholder="Password"
+                    required
+                />
+                <button type="submit" disabled={loading}>
+                    {loading ? 'Logging in...' : 'Login'}
+                </button>
+            </form>
         </div>
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">Password</label>
-          <input
-            type="password"
-            className="form-control"
-            id="password"
-            name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        {error && <p className="text-danger">{error}</p>}
-        <button type="submit" className="btn btn-primary">Login</button>
-      </form>
-    </div>
-  );
+    );
 };
 
 export default TeacherLogin;
-

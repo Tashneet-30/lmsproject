@@ -5,11 +5,12 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
-
+from django.http import JsonResponse
+from . import models
 from .models import Student, Course, CourseCategory, Teacher
-from .serializers import StudentSerializer, CourseSerializer, TeacherSerializer, CourseCategorySerializer
-
-
+from .serializers import StudentSerializer, CourseSerializer, TeacherSerializer, CourseCategorySerializer,ChapterSerializer
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.hashers import check_password
 @permission_classes([AllowAny])
 class RegisterTeacherView(APIView):
     def post(self, request):
@@ -19,27 +20,30 @@ class RegisterTeacherView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@csrf_exempt
+def teacher_login(request):
+    email = request.POST.get('email')
+    password = request.POST.get('password')
+    print(f"Received email: {email}")
+    print(f"Received password: {password}")
 
+    try:
+        teacher = Teacher.objects.get(email=email)
+        if check_password(password, teacher.password):
+            response = {
+                'bool': True,
+                'teacher_id': teacher.id
+            }
+        else:
+            response = {
+                'bool': False
+            }
+    except Teacher.DoesNotExist:
+        response = {
+            'bool': False
+        }
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def login_teacher_view(request):
-    email = request.data.get('email')
-    password = request.data.get('password')
-
-    user = authenticate(username=email, password=password)
-
-    if user is not None:
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'access_token': str(refresh.access_token),
-            'refresh_token': str(refresh)
-        })
-    else:
-        return Response({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-
+    return JsonResponse(response)
 
 
 
@@ -139,3 +143,8 @@ def list_teachers_view(request):
     teachers = Teacher.objects.all()
     serializer = TeacherSerializer(teachers, many=True)
     return Response(serializer.data)
+
+@permission_classes([AllowAny]) 
+class ChapterList(generics.ListCreateAPIView):
+    queryset=models.Chapter.objects.all()
+    serializer_class=ChapterSerializer

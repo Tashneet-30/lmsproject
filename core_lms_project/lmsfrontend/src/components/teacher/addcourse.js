@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import TeacherSidebar from './teachersidebar';
 const AddCourse = () => {
   const [categories, setCategories] = useState([]);
   const [title, setTitle] = useState('');
@@ -13,6 +13,7 @@ const AddCourse = () => {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
+    // Fetch categories
     axios.get('http://localhost:8000/api/course-categories/')
       .then(response => {
         setCategories(response.data);
@@ -21,6 +22,7 @@ const AddCourse = () => {
         console.error("There was an error fetching the categories!", error);
       });
 
+    // Fetch courses
     axios.get('http://localhost:8000/api/courses/')
       .then(response => {
         setCourses(response.data);
@@ -28,7 +30,7 @@ const AddCourse = () => {
       .catch(error => {
         console.error("There was an error fetching the courses!", error);
       });
-  }, []);
+  }, []); // Empty dependency array means this effect runs once on component mount
 
   const handleFileChange = (event) => {
     setFeaturedImage(event.target.files[0]);
@@ -135,7 +137,7 @@ const AddCourse = () => {
             <li key={course.id} className="list-group-item">
               <h5>{course.title}</h5>
               <p>{course.description}</p>
-              <img src={`http://localhost:8000${course.featured_img}`} alt={course.title} className="img-fluid" />
+              <img src={`http://localhost:8000${course.featured_img}`} alt={course.title} className="img-fluid" width="80" />
               <p>Technologies: {course.techs}</p>
             </li>
           ))}
