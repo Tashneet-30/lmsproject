@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TeacherSidebar from './teachersidebar';
 import axios from 'axios';
+import {useParams} from 'react-router-dom'
 
 function AddChapters() {
     const [courses, setCourses] = useState([]);
@@ -25,15 +26,16 @@ function AddChapters() {
         setVideo(event.target.files[0]);
     };
 
+    const {course_id}= useParams()
     const formSubmit = (event) => {
         event.preventDefault();
-
+       
         const formData = new FormData();
         formData.append('title', title);
         formData.append('description', description);
         formData.append('video', video);
         formData.append('remarks', remarks);
-        formData.append('course', selectedCourse);
+        formData.append('course', course_id);
 
         axios.post('http://localhost:8000/api/chapters/', formData, {
             headers: {

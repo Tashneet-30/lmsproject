@@ -7,7 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.http import JsonResponse
 from . import models
-from .models import Student, Course, CourseCategory, Teacher
+from .models import Student, Course, CourseCategory, Teacher,Chapter
 from .serializers import StudentSerializer, CourseSerializer, TeacherSerializer, CourseCategorySerializer,ChapterSerializer
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import check_password
@@ -148,3 +148,13 @@ def list_teachers_view(request):
 class ChapterList(generics.ListCreateAPIView):
     queryset=models.Chapter.objects.all()
     serializer_class=ChapterSerializer
+
+
+@permission_classes([AllowAny])
+class CoursechapterList(generics.ListAPIView):
+    serializer_class = ChapterSerializer
+
+    def get_queryset(self):
+        course_id = self.kwargs['course_id']
+        course = Course.objects.get(pk=course_id)
+        return Chapter.objects.filter(course=course)

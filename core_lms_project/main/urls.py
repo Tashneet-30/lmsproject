@@ -18,4 +18,5 @@ urlpatterns = [
     path('teacher-courses/<int:teacher_id>/', views.TeacherCourseList.as_view(), name='list-courses'),
     path('list-teachers/', list_teachers_view, name='list-teachers'),
     path('chapters/', views.ChapterList.as_view() ,name='chapter-list'),
+    path('course-chapters/<int:course_id>/', views.CoursechapterList.as_view() ,name='chapter-list'),
 ]

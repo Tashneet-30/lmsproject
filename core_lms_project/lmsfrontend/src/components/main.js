@@ -11,6 +11,8 @@ import TeacherLogout from './teacher/teacherlogout';
 import TeacherRegister from './teacher/teacherregister';
 import AddCourse from './teacher/addcourse';
 import AddChapters from './teacher/addchapters';
+import AllChapters from './teacher/coursechapters';
+
 import TeacherMycourses from './teacher/teachermycourses';
 import Login from './user/login';
 import Register from './user/register';
@@ -56,9 +58,11 @@ function Main() {
         <Route path="/popular-teachers" element={<PopularTeachers/>} />
         {/* Add other routes as necessary */}
         <Route path="/logout-teacher" element={<TeacherLogout />} />
-        <Route path="/add-chapters/:id" element={<AddChapters />} />
+        <Route path="/add-chapters/:course_id" element={<AddChapters />} />
         <Route path="/teachermy-courses" element={<TeacherMycourses />} />
         <Route path="/add-courses" element={<AddCourse />} />
+
+        <Route path="/all-chapters/:course_id" element={<AllChapters />} />
       </Routes>
       <Footer />
     </div>

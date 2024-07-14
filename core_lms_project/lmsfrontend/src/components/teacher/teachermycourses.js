@@ -46,7 +46,7 @@ function TeacherMyCourses() {
                 <tbody>
                   {courseData.map((course, index) => (
                     <tr key={index}>
-                      <td>{course.title}</td>
+                      <td><Link to={`/all-chapters/${course.id}`}> {course.title}</Link></td>
                       <td><Link to="/">123</Link></td>
                       <td>
                       <img src={`http://localhost:8000${course.featured_img}`} alt={course.title} className="img-fluid" width="300" />
