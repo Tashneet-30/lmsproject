@@ -7,7 +7,7 @@ const baseurl = 'http://127.0.0.1:8000/api';
 
 function ChangePassword() {
   const [formData, setFormData] = useState({
-    email: '', // Add email to formData
+    email: '',
     current_password: '',
     new_password: '',
     confirm_password: ''
@@ -31,11 +31,7 @@ function ChangePassword() {
       return;
     }
 
-    axios.post(`${baseurl}/change-password/`, formData, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Assuming you store the auth token in localStorage
-      }
-    })
+    axios.post(`${baseurl}/change-password/`, formData)
       .then(response => {
         Swal.fire({
           title: 'Success!',

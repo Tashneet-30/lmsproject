@@ -53,8 +53,9 @@ function ProfileSetting() {
       formData.append('profile_pic', teacher.profile_pic);
     }
 
+    // Debug: Log form data
     for (var pair of formData.entries()) {
-      console.log(pair[0]+ ', ' + pair[1]); 
+      console.log(pair[0] + ', ' + pair[1]);
     }
 
     axios.put(`${baseurl}/teachers/${teacherId}/`, formData, {

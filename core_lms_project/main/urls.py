@@ -4,7 +4,7 @@ from . import views
 
 from .views import course_categories,create_course
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import RegisterTeacherView, teacher_login, logout_teacher_view, TeacherCourseList, TeacherCourseDetail, list_teachers_view, RegisterStudentView, student_login, logout_student_view,teacher_detail,ChangePasswordView
+from .views import RegisterTeacherView, teacher_login, logout_teacher_view, TeacherCourseList, TeacherCourseDetail, list_teachers_view, RegisterStudentView, student_login, logout_student_view,teacher_detail,ChangePasswordView;
 urlpatterns = [
     path('register-teacher/', RegisterTeacherView.as_view(), name='register-teacher'),
     path('teacher-login/', views.teacher_login, name='teacher_login'),
@@ -24,5 +24,5 @@ urlpatterns = [
     path('chapters/', views.ChapterList.as_view() ,name='chapter-list'),
     path('course-chapters/<int:course_id>/', views.CoursechapterList.as_view() ,name='chapter-list'),
     path('chapters/<int:pk>/', views.ChapterDetail.as_view(), name='chapter-detail'),
-     path('change-password/', ChangePasswordView.as_view(), name='change-password'),
+    path('change-password/', ChangePasswordView.as_view(), name='change-password'),
 ]

@@ -2,11 +2,11 @@
 from rest_framework import serializers
 from .models import Teacher,Course,  Student,CourseCategory,Chapter
 class TeacherSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True)  # Ensure password field is here
+    password = serializers.CharField(write_only=True, required=False)  # Make password optional for updates
 
     class Meta:
         model = Teacher
-        fields = ['id', 'full_name', 'email', 'qualification', 'mobile_no', 'skills', 'profile_pic', 'password']  # Add password to fields
+        fields = ['id', 'full_name', 'email', 'qualification', 'mobile_no', 'skills', 'profile_pic', 'password']  # Include password in fields
 
     def create(self, validated_data):
         password = validated_data.pop('password')
@@ -25,6 +25,10 @@ class TeacherSerializer(serializers.ModelSerializer):
         profile_pic = validated_data.get('profile_pic')
         if profile_pic:
             instance.profile_pic = profile_pic
+
+        password = validated_data.get('password')
+        if password:
+            instance.set_password(password)
 
         instance.save()
         return instance

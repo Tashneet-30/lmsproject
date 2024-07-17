@@ -7,6 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.http import JsonResponse
 from . import models
+from rest_framework import status
 from .models import Student, Course, CourseCategory, Teacher,Chapter
 from .serializers import StudentSerializer, CourseSerializer, TeacherSerializer, CourseCategorySerializer,ChapterSerializer
 from django.views.decorators.csrf import csrf_exempt
@@ -234,9 +235,8 @@ class CourseDetailView(generics.RetrieveAPIView):
     serializer_class = CourseSerializer
 
 
-
-@permission_classes([AllowAny])
 @api_view(['GET', 'PUT'])
+@permission_classes([AllowAny])
 def teacher_detail(request, pk):
     try:
         teacher = Teacher.objects.get(pk=pk)
@@ -256,10 +256,11 @@ def teacher_detail(request, pk):
         print("Errors:", serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+
 @permission_classes([AllowAny])
 class ChangePasswordView(APIView):
-    permission_classes = [AllowAny]  # This will allow any user to access the endpoint for now
-
     def post(self, request):
         email = request.data.get('email')  # Assume email is passed in the request data
 
