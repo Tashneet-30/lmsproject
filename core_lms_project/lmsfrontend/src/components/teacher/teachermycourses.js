@@ -52,8 +52,12 @@ function TeacherMyCourses() {
                       <img src={`http://localhost:8000${course.featured_img}`} alt={course.title} className="img-fluid" width="300" />
                       </td>
                       <td>
-                        <button className="btn btn-danger btn-sm active">Delete</button>
-                        <Link className="btn btn-success btn-sm active ms-2" to={`/add-chapters/${course.id}`}>Add chapters</Link>
+
+                      <Link className="btn btn-info btn-sm active ms-2" to={`/edit-courses/${course.id}`}>Edit</Link>
+
+                      <Link className="btn btn-success btn-sm active ms-2" to={`/add-chapters/${course.id}`}>Add chapters</Link>
+                      <button className="btn btn-danger btn-sm active ms-2">Delete</button>
+                        
                       </td>
                     </tr>
                   ))}

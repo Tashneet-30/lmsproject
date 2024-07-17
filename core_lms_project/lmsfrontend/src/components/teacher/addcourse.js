@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import TeacherSidebar from './teachersidebar';
+
 const AddCourse = () => {
   const [categories, setCategories] = useState([]);
   const [title, setTitle] = useState('');
@@ -8,7 +9,7 @@ const AddCourse = () => {
   const [featuredImage, setFeaturedImage] = useState(null);
   const [technologies, setTechnologies] = useState('');
   const [category, setCategory] = useState('');
-  const [teacher, setTeacher] = useState(1); // Default teacher ID
+  const [teacher, setTeacher] = useState(localStorage.getItem('teacherId')); // Default teacher ID
 
   const [courses, setCourses] = useState([]);
 
@@ -70,78 +71,85 @@ const AddCourse = () => {
 
   return (
     <div className="container mt-5">
-      <h2>Add New Course</h2>
-      <form onSubmit={formSubmit}>
-        <div className="mb-3">
-          <label htmlFor="category" className="form-label">Category</label>
-          <select className="form-control" id="category" required onChange={e => setCategory(e.target.value)}>
-            <option value="">Select a category</option>
-            {categories.map(category => (
-              <option key={category.id} value={category.id}>
-                {category.title}
-              </option>
-            ))}
-          </select>
+      <div className="row">
+        <aside className="col-md-3">
+          <TeacherSidebar />
+        </aside>
+        <div className="col-md-9">
+          <div className="card">
+            <h5 className="card-header">Add New Course</h5>
+            <div className="card-body">
+              <form onSubmit={formSubmit}>
+                <div className="mb-3">
+                  <label htmlFor="category" className="form-label">Category</label>
+                  <select className="form-control" id="category" required onChange={e => setCategory(e.target.value)}>
+                    <option value="">Select a category</option>
+                    {categories.map(category => (
+                      <option key={category.id} value={category.id}>
+                        {category.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="title" className="form-label">Title</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="title"
+                    value={title}
+                    onChange={e => setTitle(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="description" className="form-label">Description</label>
+                  <textarea
+                    className="form-control"
+                    id="description"
+                    rows="3"
+                    value={description}
+                    onChange={e => setDescription(e.target.value)}
+                    required
+                  ></textarea>
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="featuredImage" className="form-label">Featured Image</label>
+                  <input
+                    type="file"
+                    className="form-control"
+                    id="featuredImage"
+                    onChange={handleFileChange}
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="technologies" className="form-label">Technologies</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="technologies"
+                    value={technologies}
+                    onChange={e => setTechnologies(e.target.value)}
+                    required
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary">Submit</button>
+              </form>
+              <div className="mt-4">
+                <h5>Courses List</h5>
+                <ul className="list-group">
+                  {courses.map(course => (
+                    <li key={course.id} className="list-group-item">
+                      <img src={`http://localhost:8000${course.featured_img}`} alt={course.title} onError={(e) => { e.target.src = 'path/to/placeholder/image.png'; }} className="img-fluid" width="80" />
+                      {course.title}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="mb-3">
-          <label htmlFor="title" className="form-label">Title</label>
-          <input
-            type="text"
-            className="form-control"
-            id="title"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="description" className="form-label">Description</label>
-          <textarea
-            className="form-control"
-            id="description"
-            rows="3"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            required
-          ></textarea>
-        </div>
-        <div className="mb-3">
-          <label htmlFor="featuredImage" className="form-label">Featured Image</label>
-          <input
-            type="file"
-            className="form-control"
-            id="featuredImage"
-            onChange={handleFileChange}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="technologies" className="form-label">Technologies</label>
-          <input
-            type="text"
-            className="form-control"
-            id="technologies"
-            value={technologies}
-            onChange={e => setTechnologies(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">Submit</button>
-      </form>
-
-      {/* Display list of courses */}
-      <div className="mt-5">
-        <h2>Course List</h2>
-        <ul className="list-group">
-          {courses.map(course => (
-            <li key={course.id} className="list-group-item">
-              <h5>{course.title}</h5>
-              <p>{course.description}</p>
-              <img src={`http://localhost:8000${course.featured_img}`} alt={course.title} className="img-fluid" width="80" />
-              <p>Technologies: {course.techs}</p>
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );

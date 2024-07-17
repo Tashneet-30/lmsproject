@@ -52,6 +52,48 @@ def teacher_login(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+def logout_student_view(request):
+    # Assuming you are using JWT tokens and clearing the token on logout
+    return Response({'message': 'Successfully logged out'})
+
+@permission_classes([AllowAny])
+class RegisterStudentView(APIView):
+    def post(self, request):
+        serializer = StudentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@csrf_exempt
+def student_login(request):
+    email = request.POST.get('email')
+    password = request.POST.get('password')
+    print(f"Received email: {email}")
+    print(f"Received password: {password}")
+
+    try:
+        student = Student.objects.get(email=email)
+        if check_password(password, student.password):
+            response = {
+                'bool': True,
+                'student_id': student.id
+            }
+        else:
+            response = {
+                'bool': False
+            }
+    except Student.DoesNotExist:
+        response = {
+            'bool': False
+        }
+
+    return JsonResponse(response)
+
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
 def logout_teacher_view(request):
     # Assuming you are using JWT tokens and clearing the token on logout
     return Response({'message': 'Successfully logged out'})
@@ -60,14 +102,8 @@ def logout_teacher_view(request):
 
 
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def register_student_view(request):
-    serializer = StudentSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+  
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -118,25 +154,51 @@ def create_course(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-@permission_classes([AllowAny]) 
+@permission_classes([AllowAny])
 def list_courses(request):
+    # Get all courses from the database
     courses = Course.objects.all()
+
+    # Optionally handle query parameters
+    result_param = request.query_params.get('result')
+    if result_param:
+        try:
+            limit = int(result_param)
+            # Limit the queryset if result param is provided (example logic)
+            courses = courses.order_by('-id')[:limit]
+        except ValueError:
+            # Handle the case where result_param is not an integer
+            return Response({'error': 'Invalid result parameter. Must be an integer.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Serialize the queryset
     serializer = CourseSerializer(courses, many=True)
+
+    # Return serialized data as JSON response
     return Response(serializer.data)
 
 
-
-
-#specific teacher coursec
-class TeacherCourseList(APIView):
-    def get(self, request, teacher_id):
-        courses = Course.objects.filter(teacher_id=teacher_id)
-        serializer = CourseSerializer(courses, many=True)
-        return Response(serializer.data)
+# 
     
+    # def get(self, request, teacher_id):
+    #     courses = Course.objects.filter(teacher_id=teacher_id)
+    #     serializer = self.get_serializer(courses, many=True)
+    #     return Response(serializer.data)
 
 
 
+
+@permission_classes([AllowAny])
+class TeacherCourseList(generics.ListAPIView):
+    serializer_class = CourseSerializer
+
+    def get_queryset(self):
+        teacher_id = self.kwargs['teacher_id']
+        return Course.objects.filter(teacher_id=teacher_id)
+    
+@permission_classes([AllowAny])  # Adjust permissions as needed
+class TeacherCourseDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Course.objects.all()
+    serializer_class = CourseSerializer
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def list_teachers_view(request):
@@ -158,3 +220,66 @@ class CoursechapterList(generics.ListAPIView):
         course_id = self.kwargs['course_id']
         course = Course.objects.get(pk=course_id)
         return Chapter.objects.filter(course=course)
+    
+@permission_classes([AllowAny])
+class ChapterDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.Chapter.objects.all()
+    serializer_class = ChapterSerializer
+
+
+
+@permission_classes([AllowAny])
+class CourseDetailView(generics.RetrieveAPIView):
+    queryset = Course.objects.all()
+    serializer_class = CourseSerializer
+
+
+
+@permission_classes([AllowAny])
+@api_view(['GET', 'PUT'])
+def teacher_detail(request, pk):
+    try:
+        teacher = Teacher.objects.get(pk=pk)
+    except Teacher.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = TeacherSerializer(teacher)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        print("Received data:", request.data)
+        serializer = TeacherSerializer(teacher, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        print("Errors:", serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@permission_classes([AllowAny])
+class ChangePasswordView(APIView):
+    permission_classes = [AllowAny]  # This will allow any user to access the endpoint for now
+
+    def post(self, request):
+        email = request.data.get('email')  # Assume email is passed in the request data
+
+        # Ensure the user is a teacher
+        try:
+            teacher = Teacher.objects.get(email=email)
+        except Teacher.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+        confirm_password = request.data.get('confirm_password')
+
+        if not check_password(current_password, teacher.password):
+            return Response({'error': 'Current password is incorrect.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if new_password != confirm_password:
+            return Response({'error': 'New passwords do not match.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        teacher.set_password(new_password)
+        teacher.save()
+        
+        return Response({'success': 'Password updated successfully.'}, status=status.HTTP_200_OK)

@@ -10,6 +10,7 @@ class Teacher(models.Model):
     qualification = models.CharField(max_length=100)
     mobile_no = models.CharField(max_length=100)
     skills = models.TextField()
+    profile_pic = models.ImageField(upload_to='profile_pics/', null=True, blank=True)  # Add this line
 
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
@@ -27,8 +28,7 @@ class Student(models.Model):
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
 
-    def check_password(self, raw_password):
-        return check_password(raw_password, self.password)
+   
 
     def __str__(self):
         return self.full_name
@@ -49,7 +49,7 @@ class Course(models.Model):
     description = models.TextField()
     featured_img = models.ImageField(upload_to='course_imgs/', null=True)
     techs = models.TextField()
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, default='1')  # Assuming using Django User model for teachers
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, default='1')
 
     class Meta:
         verbose_name_plural = "Courses"
@@ -57,15 +57,12 @@ class Course(models.Model):
     def __str__(self):
         return self.title
 
-
-
 class Chapter(models.Model):
-    course=models.ForeignKey(Course,on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='course_chapters')
     title = models.CharField(max_length=150)
     description = models.TextField()
     video = models.FileField(upload_to='chapter_videos/', null=True)
     remarks = models.TextField(null=True)
-
 
     class Meta:
         verbose_name_plural = "Chapters"

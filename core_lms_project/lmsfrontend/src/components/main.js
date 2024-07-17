@@ -10,20 +10,21 @@ import TeacherLogin from './teacher/teacherlogin';
 import TeacherLogout from './teacher/teacherlogout';
 import TeacherRegister from './teacher/teacherregister';
 import AddCourse from './teacher/addcourse';
+import EditCourse from './teacher/editcourse';
 import AddChapters from './teacher/addchapters';
 import AllChapters from './teacher/coursechapters';
-
+import EditChapters from './teacher/editchapters';
 import TeacherMycourses from './teacher/teachermycourses';
-import Login from './user/login';
-import Register from './user/register';
-import Logout from './user/logout';
+import StudentLogin from './user/studentlogin';
+import StudentRegister from './user/studentregister';
+import StudentLogout from './user/studentlogout';
 import Dashboard from './user/dashboard';
 import TeacherDashboard from './teacher/teacherdashboard';
 import MyCourses from './user/mycourses';
 import FavouriteCourses from './user/favouritecourses';
 import RecommendedCourses from './user/recommendedcourses';
-import ProfileSetting from './user/profilesetting';
-import ChangePassword from './user/changepassword';
+import ProfileSetting from './teacher/profilesetting';
+import ChangePassword from './teacher/changepassword';
 import Footer from './footer'; // Correct the path to import Footer
 import CourseDetail from './coursedetail';
 import TeacherDetail from './teacherdetail';
@@ -40,9 +41,9 @@ function Main() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/detail/:course_id" element={<CourseDetail />} />
-        <Route path="/user-login" element={<Login />} />
-        <Route path="/user-logout" element={<Logout />} />
-        <Route path="/user-register" element={<Register />} />
+        <Route path="/student-login" element={<StudentLogin />} />
+        <Route path="/student-logout" element={<StudentLogout />} />
+        <Route path="/student-register" element={<StudentRegister />} />
         <Route path="/user-dashboard" element={<Dashboard />} />
         <Route path="/my-courses" element={<MyCourses />} />
         <Route path="/favourite-courses" element={<FavouriteCourses />} />
@@ -60,9 +61,11 @@ function Main() {
         <Route path="/logout-teacher" element={<TeacherLogout />} />
         <Route path="/add-chapters/:course_id" element={<AddChapters />} />
         <Route path="/teachermy-courses" element={<TeacherMycourses />} />
-        <Route path="/add-courses" element={<AddCourse />} />
-
+        <Route path="/add-courses/" element={<AddCourse />} />
+        <Route path="/edit-courses/:course_id" element={<EditCourse />} />
         <Route path="/all-chapters/:course_id" element={<AllChapters />} />
+        <Route path="/edit-chapters/:chapter_id" element={<EditChapters />} />
+
       </Routes>
       <Footer />
     </div>

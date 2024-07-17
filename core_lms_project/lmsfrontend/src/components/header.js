@@ -32,8 +32,8 @@ function Header() {
                 User
               </a>
               <ul className="dropdown-menu">
-                <li><Link className="dropdown-item" to="/user-login">Login</Link></li>
-                <li><Link className="dropdown-item" to="/user-register">Register</Link></li>
+                <li><Link className="dropdown-item" to="/student-login">Login</Link></li>
+                <li><Link className="dropdown-item" to="/student-register">Register</Link></li>
                 <li><hr className="dropdown-divider" /></li>
                 <li><Link className="dropdown-item" to="/user-dashboard">Dashboard</Link></li>
                 <li><a className="dropdown-item" href="#">Logout</a></li>
