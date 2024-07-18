@@ -4,8 +4,11 @@ from . import views
 
 from .views import course_categories,create_course
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import RegisterTeacherView, teacher_login, logout_teacher_view, TeacherCourseList, TeacherCourseDetail, list_teachers_view, RegisterStudentView, student_login, logout_student_view,teacher_detail,ChangePasswordView;
+from .views import RegisterTeacherView, teacher_login, logout_teacher_view, TeacherCourseList, TeacherCourseDetail, list_teachers_view, RegisterStudentView, student_login, logout_student_view,teacher_detail,ChangePasswordView,StudentEnrollCourseList,list_students_view,AssignmentList,MyAssignmentList
+    
 urlpatterns = [
+    path('', views.index, name='index'),
+     path('', views.home_view, name='home'),
     path('register-teacher/', RegisterTeacherView.as_view(), name='register-teacher'),
     path('teacher-login/', views.teacher_login, name='teacher_login'),
     path('logout-teacher/', logout_teacher_view, name='logout-teacher'),
@@ -21,8 +24,16 @@ urlpatterns = [
     path('teacher-courses/<int:teacher_id>/', TeacherCourseList.as_view(), name='teacher_course_list'),
     path('teacher-courses-detail/<int:pk>/', views.TeacherCourseDetail.as_view(), name='teacher_course_detail'),
     path('list-teachers/', list_teachers_view, name='list-teachers'),
+    path('list-students/', list_students_view, name='list-students'),
     path('chapters/', views.ChapterList.as_view() ,name='chapter-list'),
     path('course-chapters/<int:course_id>/', views.CoursechapterList.as_view() ,name='chapter-list'),
     path('chapters/<int:pk>/', views.ChapterDetail.as_view(), name='chapter-detail'),
     path('change-password/', ChangePasswordView.as_view(), name='change-password'),
+    path('student-enroll-course/', views.StudentEnrollCourseList.as_view()),
+    path('fetch-enrolled-students/<int:course_id>/', views.EnrolledStudentList.as_view()),
+    path('fetch-all-enrolled-students/<int:teacher_id>', views.EnrolledStudentList.as_view()), 
+    path('student-assignment/<int:teacher_id>/<int:student_id>', views.AssignmentList.as_view()), 
+    path('my-assignments/<int:student_id>/', views.MyAssignmentList.as_view(), name='my-assignments'),
+    
 ]
+

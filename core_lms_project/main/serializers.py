@@ -1,6 +1,6 @@
 # serializers.py
 from rest_framework import serializers
-from .models import Teacher,Course,  Student,CourseCategory,Chapter
+from .models import Teacher,Course,  Student,CourseCategory,Chapter,StudentCourseEnrollment,StudentAssignment
 class TeacherSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)  # Make password optional for updates
 
@@ -59,12 +59,29 @@ class ChapterSerializer(serializers.ModelSerializer):
         model = Chapter
         fields = '__all__'
 
-
 class CourseSerializer(serializers.ModelSerializer):
     course_chapters = ChapterSerializer(many=True, read_only=True)
     teacher = TeacherSerializer(read_only=True)
+    total_enrolled_students = serializers.SerializerMethodField()
 
     class Meta:
         model = Course
-        fields = ['id', 'category', 'teacher', 'title', 'description', 'featured_img', 'techs', 'course_chapters']
+        fields = ['id', 'category', 'teacher', 'title', 'description', 'featured_img', 'techs', 'course_chapters', 'total_enrolled_students']
         depth = 1
+
+    def get_total_enrolled_students(self, obj):
+        return obj.total_enrolled_students()
+
+
+class StudentCourseEnrollSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentCourseEnrollment
+        fields = ['id', 'course', 'student','enrolled_time']
+        depth=1
+    
+
+class StudentAssignmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentAssignment  # Changed models.StudentAssignment to StudentAssignment
+        fields = '__all__'
+        depth=1

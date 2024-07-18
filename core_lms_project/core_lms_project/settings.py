@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "daphne",
     "django.contrib.staticfiles",
     "main",
     "rest_framework",
@@ -44,6 +45,8 @@ INSTALLED_APPS = [
     
     'rest_framework_simplejwt',
     "corsheaders",
+    "channels",
+    
 ]
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -98,9 +101,9 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "core_lms_project.wsgi.application"
+# WSGI_APPLICATION = "core_lms_project.wsgi.application"
 
-
+ASGI_APPLICATION = 'core_lms_project.asgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -111,6 +114,11 @@ DATABASES = {
     }
 }
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',  # Use appropriate backend for production
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

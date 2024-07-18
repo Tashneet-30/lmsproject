@@ -7,11 +7,19 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.http import JsonResponse
 from . import models
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from django.shortcuts import render
 from rest_framework import status
-from .models import Student, Course, CourseCategory, Teacher,Chapter
-from .serializers import StudentSerializer, CourseSerializer, TeacherSerializer, CourseCategorySerializer,ChapterSerializer
+from .models import Student, Course, CourseCategory, Teacher,Chapter,StudentCourseEnrollment,StudentAssignment
+from .serializers import StudentSerializer, CourseSerializer, TeacherSerializer, CourseCategorySerializer,ChapterSerializer,StudentCourseEnrollSerializer,StudentAssignmentSerializer
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import check_password
+
+def home_view(request):
+    return render(request, 'home.html')
+def index(request):
+    return render(request, 'index.html')
 @permission_classes([AllowAny])
 class RegisterTeacherView(APIView):
     def post(self, request):
@@ -206,6 +214,12 @@ def list_teachers_view(request):
     teachers = Teacher.objects.all()
     serializer = TeacherSerializer(teachers, many=True)
     return Response(serializer.data)
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_students_view(request):
+    students = Student.objects.all()
+    serializer = StudentSerializer(students, many=True)
+    return Response(serializer.data)
 
 @permission_classes([AllowAny]) 
 class ChapterList(generics.ListCreateAPIView):
@@ -284,3 +298,70 @@ class ChangePasswordView(APIView):
         teacher.save()
         
         return Response({'success': 'Password updated successfully.'}, status=status.HTTP_200_OK)
+    
+
+@permission_classes([AllowAny])
+class StudentEnrollCourseList(generics.ListCreateAPIView):
+    queryset=models.StudentCourseEnrollment.objects.all()
+    serializer_class=StudentCourseEnrollSerializer
+
+@permission_classes([AllowAny])
+class EnrolledStudentList(generics.ListAPIView):
+    serializer_class = StudentCourseEnrollSerializer
+
+
+
+    def get_queryset(self):
+        if 'course_id' in self.kwargs:
+            course_id = self.kwargs['course_id']
+            course=models.Teacher.objects.get(pk=course_id)
+            return StudentCourseEnrollment.objects.filter(course_id=course_id)
+        elif 'teacher_id':
+            teacher_id = self.kwargs.get('teacher_id')
+            return StudentCourseEnrollment.objects.filter(course__teacher_id=teacher_id).distinct()
+
+
+            
+@permission_classes([AllowAny])
+class AssignmentList(generics.ListCreateAPIView):
+    queryset = models.StudentAssignment.objects.all()
+    serializer_class = StudentAssignmentSerializer
+
+    def get_queryset(self):
+        student_id = self.kwargs['student_id']
+        teacher_id = self.kwargs['teacher_id']
+        student = models.Student.objects.get(pk=student_id)
+        teacher = models.Teacher.objects.get(pk=teacher_id)
+
+       
+        return models.StudentAssignment.objects.filter(student=student, teacher=teacher)
+
+    def perform_create(self, serializer):
+        student_id = self.kwargs['student_id']
+        teacher_id = self.kwargs['teacher_id']
+        student = models.Student.objects.get(pk=student_id)
+        teacher = models.Teacher.objects.get(pk=teacher_id)
+        instance = serializer.save(student=student, teacher=teacher)
+
+         # Send notification via WebSocket
+        message = f"New assignment '{instance.title}' added"
+        send_notification(message)
+
+def send_notification(message):
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'notifications',
+        {
+            'type': 'send_notification',
+            'message': message
+        }
+    )
+                
+@permission_classes([AllowAny])
+class MyAssignmentList(generics.ListAPIView):
+    serializer_class = StudentAssignmentSerializer
+
+    def get_queryset(self):
+        student_id = self.kwargs['student_id']
+        student = Student.objects.get(pk=student_id)
+        return StudentAssignment.objects.filter(student=student)

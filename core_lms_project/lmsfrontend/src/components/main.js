@@ -10,17 +10,23 @@ import TeacherLogin from './teacher/teacherlogin';
 import TeacherLogout from './teacher/teacherlogout';
 import TeacherRegister from './teacher/teacherregister';
 import AddCourse from './teacher/addcourse';
+import EnrolledStudents from './teacher/enrolledstudents';
 import EditCourse from './teacher/editcourse';
 import AddChapters from './teacher/addchapters';
+import AddAssignment from './teacher/addassignment';
+import ShowAssignment from './teacher/showassignment';
 import AllChapters from './teacher/coursechapters';
 import EditChapters from './teacher/editchapters';
 import TeacherMycourses from './teacher/teachermycourses';
 import StudentLogin from './user/studentlogin';
+import StudentAssignment from './user/studentassignment';
+import UserList from './teacher/userlist';
 import StudentRegister from './user/studentregister';
 import StudentLogout from './user/studentlogout';
 import Dashboard from './user/dashboard';
 import TeacherDashboard from './teacher/teacherdashboard';
 import MyCourses from './user/mycourses';
+import NotificationComponent from './notificationcomponent';
 import FavouriteCourses from './user/favouritecourses';
 import RecommendedCourses from './user/recommendedcourses';
 import ProfileSetting from './teacher/profilesetting';
@@ -37,6 +43,7 @@ function Main() {
   return (
     <div className="main">
       <Header />
+    
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -65,7 +72,11 @@ function Main() {
         <Route path="/edit-courses/:course_id" element={<EditCourse />} />
         <Route path="/all-chapters/:course_id" element={<AllChapters />} />
         <Route path="/edit-chapters/:chapter_id" element={<EditChapters />} />
-
+        <Route path="/enrolled-students/:course_id" element={<EnrolledStudents />} />
+        <Route path="/user-list/:teacher_id" element={<UserList />} />
+        <Route path="/add-assignment/:teacher_id/:student_id" element={<AddAssignment />} />
+        <Route path="/show-assignment/:teacher_id/:student_id" element={<ShowAssignment />} />
+        <Route path="/my-assignments/" element={<StudentAssignment />} />
       </Routes>
       <Footer />
     </div>

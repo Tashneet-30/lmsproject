@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import TeacherSidebar from './teachersidebar'; // Adjust the import path based on your file structure
+import TeachersideBar from './teachersidebar'; // Adjust the import path based on your file structure
 import axios from 'axios';
 
 const baseurl = 'http://127.0.0.1:8000/api';
@@ -28,7 +28,7 @@ function TeacherMyCourses() {
     <div className="container mt-4">
       <div className="row">
         <aside className="col-md-3">
-          <TeacherSidebar />
+          <TeachersideBar />
         </aside>
         <section className="col-md-9">
           <div className="card">
@@ -46,18 +46,15 @@ function TeacherMyCourses() {
                 <tbody>
                   {courseData.map((course, index) => (
                     <tr key={index}>
-                      <td><Link to={`/all-chapters/${course.id}`}> {course.title}</Link></td>
-                      <td><Link to="/">123</Link></td>
+                      <td><Link to={`/all-chapters/${course.id}`}>{course.title}</Link></td>
+                      <td><Link to={`/enrolled-students/${course.id}`}>{course.total_enrolled_students}</Link></td>
                       <td>
-                      <img src={`http://localhost:8000${course.featured_img}`} alt={course.title} className="img-fluid" width="300" />
+                        <img src={`http://localhost:8000${course.featured_img}`} alt={course.title} className="img-fluid" width="300" />
                       </td>
                       <td>
-
-                      <Link className="btn btn-info btn-sm active ms-2" to={`/edit-courses/${course.id}`}>Edit</Link>
-
-                      <Link className="btn btn-success btn-sm active ms-2" to={`/add-chapters/${course.id}`}>Add chapters</Link>
-                      <button className="btn btn-danger btn-sm active ms-2">Delete</button>
-                        
+                        <Link className="btn btn-info btn-sm active ms-2" to={`/edit-courses/${course.id}`}>Edit</Link>
+                        <Link className="btn btn-success btn-sm active ms-2" to={`/add-chapters/${course.id}`}>Add chapters</Link>
+                        <button className="btn btn-danger btn-sm active ms-2">Delete</button>
                       </td>
                     </tr>
                   ))}

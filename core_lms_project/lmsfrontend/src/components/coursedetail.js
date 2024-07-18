@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const baseurl = 'http://127.0.0.1:8000/api';
 
@@ -9,19 +10,65 @@ function CourseDetail() {
   const [courseData, setCourseData] = useState({});
   const [chapterData, setChapterData] = useState([]);
   const [teacherData, setTeacherData] = useState({});
+  const [isEnrolled, setIsEnrolled] = useState(false);
 
   useEffect(() => {
+    const studentId = localStorage.getItem('studentId');
+
+    // Fetch course data
     axios.get(`${baseurl}/courses/${course_id}`)
       .then((res) => {
-        console.log('Course Data:', res.data); // Log the response data
         setCourseData(res.data);
-        setChapterData(res.data.course_chapters || []); // Ensure chapters are set correctly
-        setTeacherData(res.data.teacher || {}); // Ensure teacher data is set correctly
+        setChapterData(res.data.course_chapters || []);
+        setTeacherData(res.data.teacher || {});
       })
       .catch((error) => {
         console.log('Error fetching course data:', error);
       });
+
+    // Check if student is enrolled
+    axios.get(`${baseurl}/student-enroll-course/`)
+      .then((res) => {
+        const enrolledCourses = res.data;
+        const isEnrolled = enrolledCourses.some((enrollment) => 
+          enrollment.course === parseInt(course_id) && enrollment.student === parseInt(studentId)
+        );
+        setIsEnrolled(isEnrolled);
+      })
+      .catch((error) => {
+        console.log('Error checking enrollment status:', error);
+      });
   }, [course_id]);
+
+  const EnrollCourse = () => {
+    const formData = new FormData();
+    const studentId = localStorage.getItem('studentId');
+    formData.append('course', course_id);
+    formData.append('student', studentId);
+
+    axios.post(`${baseurl}/student-enroll-course/`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    .then(response => {
+      Swal.fire({
+        title: 'Success!',
+        text: 'You have enrolled in the course successfully.',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
+      setIsEnrolled(true);  // Update the state to hide the enroll button
+    })
+    .catch(error => {
+      Swal.fire({
+        title: 'Error!',
+        text: 'There was an error enrolling in the course.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+    });
+  };
 
   return (
     <div className="container mt-3">
@@ -40,8 +87,11 @@ function CourseDetail() {
             <p className="fw-bold">Course By: <Link to={`/teacher-detail/${teacherData.id}`}>{teacherData.full_name}</Link></p>
           )}
           <p className="fw-bold">Course Duration: <a href="#" role="button">3 hours 30 Minutes</a></p>
-          <p className="fw-bold">Total Enrolled: 370 students</p>
+          <p className="fw-bold">Total Enrolled: {courseData.total_enrolled_students} Student(s) </p>
           <p className="fw-bold">Rating: 4/5</p>
+          {!isEnrolled && (
+            <p><button onClick={EnrollCourse} className="btn btn-success">Enroll in this Course</button></p>
+          )}
         </div>
       </div>
 
@@ -68,7 +118,6 @@ function CourseDetail() {
         </ul>
       </div>
 
-      {/* Modals for videos */}
       {chapterData.map((chapter, index) => (
         <div key={index} className="modal fade" id={`videoModal${index + 1}`} tabIndex="-1" aria-labelledby={`videoModalLabel${index + 1}`} aria-hidden="true">
           <div className="modal-dialog modal-lg">
@@ -100,10 +149,10 @@ function CourseDetail() {
             </div>
           </div>
         </div>
-        {/* Add more featured courses as needed */}
       </div>
     </div>
   );
 }
 
 export default CourseDetail;
+
