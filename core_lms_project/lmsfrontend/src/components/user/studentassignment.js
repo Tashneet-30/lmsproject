@@ -1,15 +1,20 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SideBar from './sidebar'; // Adjust the import path based on your file structure
 import axios from 'axios';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const MySwal = withReactContent(Swal);
 
 const baseurl = 'http://127.0.0.1:8000/api';
 
 function StudentAssignment() {
   const [assignmentData, setAssignmentData] = useState([]);
+  const [assignmentStatus, setAssignmentStatus] = useState('');
 
   useEffect(() => {
-    // Fetch assignments when component mounts
     fetchAssignments();
   }, []);
 
@@ -24,6 +29,39 @@ function StudentAssignment() {
       }
     } catch (error) {
       console.error('Error fetching assignments:', error);
+    }
+  };
+
+  const markAsDone = async (assignmentId) => {
+    try {
+      const response = await axios.post(`${baseurl}/update-assignment/${assignmentId}/`);
+      if (response.status === 200) {
+        setAssignmentStatus('success');
+
+        // Update the specific assignment's status in the state
+        setAssignmentData((prevData) =>
+          prevData.map((assignment) =>
+            assignment.id === assignmentId
+              ? { ...assignment, status: 'completed' }
+              : assignment
+          )
+        );
+
+        MySwal.fire({
+          icon: 'success',
+          title: 'Marked as Done',
+          text: 'The assignment has been marked as done.',
+        });
+      }
+    } catch (error) {
+      console.error('Error marking assignment as done:', error);
+      setAssignmentStatus('error');
+
+      MySwal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'There was an error marking the assignment as done.',
+      });
     }
   };
 
@@ -46,7 +84,7 @@ function StudentAssignment() {
                       <th>Title</th>
                       <th>Detail</th>
                       <th>Teacher</th>
-                      <th>Add Time</th>
+                      <th>Added Time</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -61,7 +99,18 @@ function StudentAssignment() {
                           <Link className="btn btn-info btn-sm active ms-2" to={`/assignment-details/${assignment.id}`}>
                             View
                           </Link>
-                          {/* Add more actions like Edit and Delete here */}
+                          {assignment.status !== 'completed' ? (
+                            <button
+                              onClick={() => markAsDone(assignment.id)}
+                              className="btn btn-success btn-sm active ms-2"
+                            >
+                              Mark as Done
+                            </button>
+                          ) : (
+                            <button className="btn btn-secondary btn-sm active ms-2" disabled>
+                              Completed
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}

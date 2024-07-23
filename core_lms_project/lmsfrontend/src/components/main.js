@@ -12,8 +12,14 @@ import TeacherRegister from './teacher/teacherregister';
 import AddCourse from './teacher/addcourse';
 import EnrolledStudents from './teacher/enrolledstudents';
 import EditCourse from './teacher/editcourse';
+import AddQuiz from './teacher/addquiz';
+import AllQuiz from './teacher/allquiz';
+import AllQuestions from './teacher/quizquestions';
+import EditQuiz from './teacher/editquiz';
+import AssignQuiz from './teacher/assignquiz';
 import AddChapters from './teacher/addchapters';
 import AddAssignment from './teacher/addassignment';
+import AddQuizQuestions from './teacher/addquizquestions';
 import ShowAssignment from './teacher/showassignment';
 import AllChapters from './teacher/coursechapters';
 import EditChapters from './teacher/editchapters';
@@ -62,6 +68,7 @@ function Main() {
         <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
         <Route path="/teacher-detail/:teacher_id" element={<TeacherDetail />} />
         <Route path="/all-courses" element={<AllCourses />} />
+        <Route path="/all-questions/:quiz_id" element={<AllQuestions />} />
         <Route path="/popular-courses" element={<PopularCourses />} />
         <Route path="/popular-teachers" element={<PopularTeachers/>} />
         {/* Add other routes as necessary */}
@@ -69,6 +76,11 @@ function Main() {
         <Route path="/add-chapters/:course_id" element={<AddChapters />} />
         <Route path="/teachermy-courses" element={<TeacherMycourses />} />
         <Route path="/add-courses/" element={<AddCourse />} />
+        <Route path="/add-quiz/" element={<AddQuiz/>} />
+        <Route path="/all-quiz/" element={<AllQuiz/>} />
+        <Route path="/add-quiz-question/:quiz_id" element={<AddQuizQuestions />} />
+        <Route path="/assign-quiz/:course_id" element={<AssignQuiz />} />
+        <Route path="/edit-quiz/:quiz_id" element={<AssignQuiz/>} />
         <Route path="/edit-courses/:course_id" element={<EditCourse />} />
         <Route path="/all-chapters/:course_id" element={<AllChapters />} />
         <Route path="/edit-chapters/:chapter_id" element={<EditChapters />} />

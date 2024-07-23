@@ -1,6 +1,6 @@
 # serializers.py
 from rest_framework import serializers
-from .models import Teacher,Course,  Student,CourseCategory,Chapter,StudentCourseEnrollment,StudentAssignment
+from .models import Teacher,Course,  Student,CourseCategory,Chapter,StudentCourseEnrollment,StudentAssignment,Quiz,QuizQuestions,CourseQuiz
 class TeacherSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)  # Make password optional for updates
 
@@ -85,3 +85,18 @@ class StudentAssignmentSerializer(serializers.ModelSerializer):
         model = StudentAssignment  # Changed models.StudentAssignment to StudentAssignment
         fields = '__all__'
         depth=1
+
+class QuizSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Quiz
+        fields= '__all__'
+
+class QuizQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuizQuestions
+        fields = ['quiz', 'questions', 'ans1', 'ans2', 'ans3', 'ans4', 'right_ans']
+
+class CourseQuizSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseQuiz
+        fields = ['id', 'teacher','course', 'quiz', 'add_time']

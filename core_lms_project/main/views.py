@@ -1,4 +1,4 @@
-from rest_framework import status, generics
+from rest_framework import status, generics,viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,8 +11,8 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.shortcuts import render
 from rest_framework import status
-from .models import Student, Course, CourseCategory, Teacher,Chapter,StudentCourseEnrollment,StudentAssignment
-from .serializers import StudentSerializer, CourseSerializer, TeacherSerializer, CourseCategorySerializer,ChapterSerializer,StudentCourseEnrollSerializer,StudentAssignmentSerializer
+from .models import Student, Course, CourseCategory, Teacher,Chapter,StudentCourseEnrollment,StudentAssignment,Quiz,QuizQuestions,CourseQuiz
+from .serializers import StudentSerializer, CourseSerializer, TeacherSerializer, CourseCategorySerializer,ChapterSerializer,StudentCourseEnrollSerializer,StudentAssignmentSerializer,QuizSerializer,QuizQuestionSerializer,CourseQuizSerializer
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import check_password
 
@@ -343,19 +343,6 @@ class AssignmentList(generics.ListCreateAPIView):
         teacher = models.Teacher.objects.get(pk=teacher_id)
         instance = serializer.save(student=student, teacher=teacher)
 
-         # Send notification via WebSocket
-        message = f"New assignment '{instance.title}' added"
-        send_notification(message)
-
-def send_notification(message):
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        'notifications',
-        {
-            'type': 'send_notification',
-            'message': message
-        }
-    )
                 
 @permission_classes([AllowAny])
 class MyAssignmentList(generics.ListAPIView):
@@ -365,3 +352,101 @@ class MyAssignmentList(generics.ListAPIView):
         student_id = self.kwargs['student_id']
         student = Student.objects.get(pk=student_id)
         return StudentAssignment.objects.filter(student=student)
+    
+@permission_classes([AllowAny])
+class UpdateAssignmentView(APIView):
+    def post(self, request, pk):
+        try:
+            assignment = StudentAssignment.objects.get(id=pk)
+            assignment.status = 'completed'
+            assignment.save()
+            return Response({'status': 'success'}, status=status.HTTP_200_OK)
+        except StudentAssignment.DoesNotExist:
+            return Response({'error': 'Assignment not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+
+
+@permission_classes([AllowAny])
+class QuizList(generics.ListCreateAPIView):
+    queryset = Quiz.objects.all()
+    serializer_class =  QuizSerializer
+
+
+@permission_classes([AllowAny])
+class TeacherQuizList(generics.ListAPIView):
+    serializer_class = QuizSerializer
+
+    def get_queryset(self):
+        teacher_id = self.kwargs['teacher_id']
+        return Quiz.objects.filter(teacher_id=teacher_id)
+
+
+@permission_classes([AllowAny])  # Adjust permissions as needed
+class TeacherQuizDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Quiz.objects.all()
+    serializer_class = QuizSerializer
+
+
+@api_view(['DELETE'])
+@permission_classes([AllowAny])
+def delete_quiz(request, quiz_id):
+    try:
+        quiz = Quiz.objects.get(pk=quiz_id)
+        quiz.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    except Quiz.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def add_quiz_question(request, quiz_id):
+    if request.method == 'POST':
+        data = request.data.copy()
+        data['quiz'] = quiz_id
+        
+        serializer = QuizQuestionSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_quiz_questions(request, quiz_id):
+    try:
+        quiz = Quiz.objects.get(pk=quiz_id)
+    except Quiz.DoesNotExist:
+        return Response({'error': 'Quiz not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    questions = QuizQuestions.objects.filter(quiz=quiz)
+    serializer = QuizQuestionSerializer(questions, many=True)
+    return Response(serializer.data)
+
+
+@permission_classes([AllowAny])  # Adjust permissions as needed
+class AssignQuizToCourse(APIView):
+    def post(self, request, *args, **kwargs):
+        quiz_id = request.data.get('quiz_id')
+        course_id = request.data.get('course_id')
+        teacher_id = request.data.get('teacher_id')
+
+        if not all([quiz_id, course_id, teacher_id]):
+            return Response({'detail': 'Missing required fields.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Assuming you have a validation method or you directly create the object
+        try:
+            course_quiz = CourseQuiz.objects.create(
+                quiz_id=quiz_id,
+                course_id=course_id,
+                teacher_id=teacher_id
+            )
+            serializer = CourseQuizSerializer(course_quiz)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class CourseQuizList(generics.ListAPIView):
+    serializer_class = CourseQuizSerializer
+
+    def get_queryset(self):
+        course_id = self.kwargs['course_id']
+        return CourseQuiz.objects.filter(course_id=course_id)

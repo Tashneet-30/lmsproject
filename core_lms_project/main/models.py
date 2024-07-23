@@ -92,6 +92,7 @@ class StudentAssignment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, null=True)
     title = models.CharField(max_length=200)
     detail = models.TextField(null=True)
+    student_status=models.BooleanField(default=False,null=True)
     add_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -107,3 +108,42 @@ class Notification(models.Model):
     
     def __str__(self):
         return self.message
+    
+#quix
+class Quiz(models.Model):
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, null=True)
+    title = models.CharField(max_length=200)
+    detail = models.TextField()
+    add_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Quiz"
+
+    def __str__(self):
+        return self.title
+
+
+class QuizQuestions(models.Model):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, null=True)
+    questions = models.CharField(max_length=200)
+    ans1 = models.CharField(max_length=200)
+    ans2 = models.CharField(max_length=200)
+    ans3 = models.CharField(max_length=200)
+    ans4 = models.CharField(max_length=200)
+    right_ans = models.CharField(max_length=200)
+    add_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Quiz Questions"
+
+    def __str__(self):
+        return self.questions
+
+class CourseQuiz(models.Model):
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, null=True, related_name='teacher_quizzes')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, related_name='course_quizzes')
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, null=True, related_name='quiz_courses')
+    add_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Course Quiz"

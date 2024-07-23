@@ -18,12 +18,16 @@ function AssignQuiz() {
         if (teacherId) {
           const response = await axios.get(`${baseurl}/teacher-quiz/${teacherId}/`);
           const assignedQuizzesResponse = await axios.get(`${baseurl}/courses/${course_id}`);
-          const assignedQuizIds = new Set(assignedQuizzesResponse.data.course_quizzes.map(q => q.quiz.id));
+          
+          // Ensure course_quizzes and quiz data are defined and are arrays
+          const courseQuizzes = assignedQuizzesResponse.data?.course_quizzes || [];
+          const assignedQuizIds = new Set(courseQuizzes.map(q => q.quiz.id || null));
 
-          const quizzes = response.data.map(quiz => ({
+          // Map quizzes with safety checks
+          const quizzes = response.data?.map(quiz => ({
             ...quiz,
             assigned: assignedQuizIds.has(quiz.id),
-          }));
+          })) || [];
 
           setQuizData(quizzes);
         } else {
@@ -37,7 +41,7 @@ function AssignQuiz() {
     const fetchCourse = async () => {
       try {
         const response = await axios.get(`${baseurl}/courses/${course_id}`);
-        setCourseData(response.data);
+        setCourseData(response.data || {});
       } catch (error) {
         console.error('Error fetching course data:', error);
       }
@@ -47,21 +51,20 @@ function AssignQuiz() {
     fetchCourse();
   }, [teacherId, course_id]);
 
-  const assignQuiz = (quiz_id) => {
-    axios.post(`${baseurl}/assign-quiz/`, { quiz_id, course_id })
-      .then((response) => {
-        Swal.fire('Assigned!', 'The quiz has been assigned to the course.', 'success');
-        setQuizData(quizData.map(quiz => {
-          if (quiz.id === quiz_id) {
-            return { ...quiz, assigned: true };
-          }
-          return quiz;
-        }));
-      })
-      .catch((error) => {
-        console.error('Error assigning quiz:', error);
-        Swal.fire('Error!', 'There was an error assigning the quiz.', 'error');
-      });
+  const assignQuiz = async (quiz_id) => {
+    try {
+      const response = await axios.post(`${baseurl}/assign-quiz/`, { quiz_id, course_id, teacher_id: teacherId });
+      Swal.fire('Assigned!', 'The quiz has been assigned to the course.', 'success');
+      setQuizData(quizData.map(quiz => {
+        if (quiz.id === quiz_id) {
+          return { ...quiz, assigned: true };
+        }
+        return quiz;
+      }));
+    } catch (error) {
+      console.error('Error assigning quiz:', error);
+      Swal.fire('Error!', 'There was an error assigning the quiz.', 'error');
+    }
   };
 
   return (
@@ -78,24 +81,36 @@ function AssignQuiz() {
                 <thead>
                   <tr>
                     <th>Name</th>
-                    <th>Actions</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {quizData.map((quiz) => (
-                    <tr key={quiz.id}>
-                      <td>
-                        <Link to={`/quiz-questions/${quiz.id}`}>{quiz.title}</Link>
-                      </td>
-                      <td>
-                        {!quiz.assigned && (
-                          <button onClick={() => assignQuiz(quiz.id)} className="btn btn-sm btn-success ms-2">
-                            <i className="bi bi-check-circle-fill"></i> Assign
-                          </button>
-                        )}
-                      </td>
+                  {quizData.length > 0 ? (
+                    quizData.map((quiz) => (
+                      <tr key={quiz.id}>
+                        <td>
+                          {quiz.assigned ? (
+                            <>
+                              {quiz.title} <span className="badge bg-success">Assigned</span>
+                            </>
+                          ) : (
+                            <Link to={`/quiz-questions/${quiz.id}`}>{quiz.title}</Link>
+                          )}
+                        </td>
+                        <td>
+                          {!quiz.assigned && (
+                            <button onClick={() => assignQuiz(quiz.id)} className="btn btn-sm btn-success ms-2">
+                              <i className="bi bi-check-circle-fill"></i> Assign
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="2">No quizzes available</td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>

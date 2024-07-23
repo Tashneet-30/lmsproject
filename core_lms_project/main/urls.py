@@ -4,8 +4,7 @@ from . import views
 
 from .views import course_categories,create_course
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import RegisterTeacherView, teacher_login, logout_teacher_view, TeacherCourseList, TeacherCourseDetail, list_teachers_view, RegisterStudentView, student_login, logout_student_view,teacher_detail,ChangePasswordView,StudentEnrollCourseList,list_students_view,AssignmentList,MyAssignmentList
-    
+from .views import RegisterTeacherView, teacher_login, logout_teacher_view, TeacherCourseList, TeacherCourseDetail, list_teachers_view, RegisterStudentView, student_login, logout_student_view,teacher_detail,ChangePasswordView,StudentEnrollCourseList,list_students_view,AssignmentList,MyAssignmentList,UpdateAssignmentView,QuizList,TeacherQuizList,delete_quiz,add_quiz_question,list_quiz_questions,AssignQuizToCourse,CourseQuizList
 urlpatterns = [
     path('', views.index, name='index'),
      path('', views.home_view, name='home'),
@@ -34,6 +33,16 @@ urlpatterns = [
     path('fetch-all-enrolled-students/<int:teacher_id>', views.EnrolledStudentList.as_view()), 
     path('student-assignment/<int:teacher_id>/<int:student_id>', views.AssignmentList.as_view()), 
     path('my-assignments/<int:student_id>/', views.MyAssignmentList.as_view(), name='my-assignments'),
+    path('update-assignment/<int:pk>/', UpdateAssignmentView.as_view(), name='update-assignment'),
+    
+    
+    path('quiz/',views.QuizList.as_view(),name='list-quiz'),
+    path('teacher-quiz/<int:teacher_id>/', TeacherQuizList.as_view(), name='teacher_quiz_list'),
+    path('teacher-quiz-detail/<int:pk>/', views.TeacherQuizDetail.as_view(), name='teacher_quiz_detail'),
+    path('quiz/<int:quiz_id>/', delete_quiz, name='quiz-delete'),
+    path('quiz-questions/<int:quiz_id>/', list_quiz_questions, name='list-quiz-questions'),
+    path('quiz-questions/<int:quiz_id>/add/', add_quiz_question, name='add-quiz-question'),
+    path('assign-quiz/', views.AssignQuizToCourse.as_view(), name='assign-quiz-to-course'),
+    
     
 ]
-
