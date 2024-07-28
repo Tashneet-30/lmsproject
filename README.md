@@ -40,3 +40,7 @@ This project is a comprehensive Learning Management System (LMS) built with Djan
 
 
 
+Feel free to copy and paste this markdown into your README file on GitHub! Make sure to replace `[your email]` with your actual contact email and adjust any other details as necessary.
+
+
+
